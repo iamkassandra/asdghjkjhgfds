@@ -1,0 +1,79 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A digital product available for purchase.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID." },
+        "name": { "type": "string", "description": "Product name." },
+        "description": { "type": "string", "description": "Detailed description." },
+        "price": { "type": "number", "description": "Price in USD." },
+        "fileUrl": { "type": "string", "description": "The mock or storage path for instant download." },
+        "image": { "type": "string", "description": "Image URL or data URI." },
+        "category": { "type": "string", "description": "Product category." }
+      },
+      "required": ["id", "name", "price", "fileUrl"]
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "A confirmed transaction of a digital product.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Transactions transaction ID." },
+        "email": { "type": "string", "description": "Purchaser email." },
+        "phone": { "type": "string", "description": "Purchaser phone." },
+        "items": { "type": "array", "description": "Purchased items with files." },
+        "total": { "type": "number", "description": "Total payment in USD." },
+        "status": { "type": "string", "description": "Completed or pending." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Purchase timestamp." }
+      },
+      "required": ["id", "email", "items", "total", "status", "createdAt"]
+    },
+    "AgentState": {
+      "title": "AgentState",
+      "description": "Simulation metrics and task states of our operational background agents.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Agent key (cfo, output, growth)." },
+        "name": { "type": "string", "description": "Representational name." },
+        "status": { "type": "string", "description": "Current status." },
+        "metrics": { "type": "object", "description": "Key performance maps." },
+        "logs": { "type": "array", "description": "Realtime activity log strings." }
+      },
+      "required": ["id", "name", "status"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Persistent record of multi-turn chat sessions with support or orchestrators.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Message unique id." },
+        "role": { "type": "string", "description": "User or model." },
+        "text": { "type": "string", "description": "Content of message." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server creation time." },
+        "chatType": { "type": "string", "description": "sales, cfo, or growth." },
+        "userId": { "type": "string", "description": "Identity of user or guest." }
+      },
+      "required": ["id", "role", "text", "createdAt", "chatType", "userId"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Collections of premium automated tools and agents."
+    },
+    "/purchases/{purchaseId}": {
+      "schema": "Purchase",
+      "description": "Verified receipts and associated download links."
+    },
+    "/agents/{agentId}": {
+      "schema": "AgentState",
+      "description": "Simulation metrics and logs of the CFO and Puppeteer agents."
+    },
+    "/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Sales assistance and command logs for Orchestrator agents."
+    }
+  }
+}

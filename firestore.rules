@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default catch-all security net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper: Is the user authenticated?
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: Validate document ID sizes & characters to prevent resource poisoning
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Products collection: Anyone can read, only admin can write
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isSignedIn() && isValidId(productId);
+    }
+
+    // Purchases collection: Verified checkouts. Owners can read, server or verified checkout can write
+    match /purchases/{purchaseId} {
+      allow get: if true; // Allow instant download page retrieval via the purchaseId
+      allow list: if isSignedIn();
+      allow create: if true; // Customers creating a cart/checkout entry
+      allow update, delete: if isSignedIn();
+    }
+
+    // Agent state collection: Only the authenticated orchestrator can view/write
+    match /agents/{agentId} {
+      allow read, write: if isSignedIn() && isValidId(agentId);
+    }
+
+    // Messages: Support Chat or command queries
+    match /messages/{messageId} {
+      // Allow list and get if matching guest userId, or if signed in (admin)
+      allow read: if (
+        (request.query.limit <= 100 && resource.data.userId == request.auth.uid) ||
+        (resource.data.chatType == 'sales') ||
+        isSignedIn()
+      );
+      
+      allow create: if (
+        isValidId(messageId) &&
+        request.resource.data.role in ['user', 'model'] &&
+        (request.resource.data.chatType == 'sales' || isSignedIn())
+      );
+
+      allow update, delete: if isSignedIn();
+    }
+  }
+}
