@@ -36,6 +36,22 @@ export default function LandingPage({ onAdminToggle, addedProductId, clearAddedP
   const [cart, setCart] = useState<Product[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Toast notification states
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('info');
+
+  const triggerToast = (msg: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToastMessage(msg);
+    setToastType(type);
+  };
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
   
   // Checkout states
   const [email, setEmail] = useState('');
@@ -80,8 +96,9 @@ export default function LandingPage({ onAdminToggle, addedProductId, clearAddedP
     if (discountCode.toUpperCase() === 'AETHER10' || discountCode.toUpperCase() === 'ORCHESTRATOR') {
       setCouponApplied(true);
       setDiscountAmount(10);
+      triggerToast("Promotional token verified successfully! 10% discount applied.", "success");
     } else {
-      alert("Invalid promotional token.");
+      triggerToast("Invalid promotional token.", "error");
     }
   };
 
@@ -98,7 +115,7 @@ export default function LandingPage({ onAdminToggle, addedProductId, clearAddedP
   const handleStripeCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !phone || !cardName || !cardNumber) {
-      alert("Please complete required checkout metrics.");
+      triggerToast("Please complete required checkout metrics.", "error");
       return;
     }
 
@@ -788,6 +805,34 @@ export default function LandingPage({ onAdminToggle, addedProductId, clearAddedP
           </div>
         )}
       </AnimatePresence>
+
+      {/* Floating high-end custom toast overlay block */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 40, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 15, scale: 0.97 }}
+            className={`fixed bottom-6 right-6 z-50 p-4 rounded-sm shadow-2xl flex items-center justify-between gap-4 border max-w-sm ${
+              toastType === 'success' 
+                ? 'bg-slate-900 border-emerald-500/40 text-emerald-300' 
+                : toastType === 'error'
+                ? 'bg-slate-900 border-rose-500/40 text-rose-300'
+                : 'bg-slate-900 border-blue-500/40 text-blue-300'
+            }`}
+          >
+            <div className="flex-1 text-[11px] font-mono leading-normal font-semibold">
+              {toastMessage}
+            </div>
+            <button 
+              onClick={() => setToastMessage(null)}
+              className="text-slate-500 hover:text-slate-200 cursor-pointer p-1 text-[9px] font-mono leading-none border border-slate-800 rounded-sm font-bold transition hover:bg-slate-850"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  );;
+  );
 }
