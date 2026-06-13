@@ -68,3 +68,23 @@ export interface MarketingAsset {
   aspectRatio: string;
   createdTime: string;
 }
+
+export interface CfoAuditReport {
+  score: number;
+  rating: string;
+  text: string;
+}
+
+export interface GitHubFile {
+  name: string;
+  size: number;
+  downloadUrl?: string;
+  id?: string;
+  description?: string;
+  price?: string | number;
+  category?: string;
+  features?: string | string[];
+  codeContent?: string;
+  image?: string;
+}
+
